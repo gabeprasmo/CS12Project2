@@ -10,8 +10,6 @@ class Main
         // calling the GUI constructor
         GUI gui = new GUI();
 
-        int Natalie = 4;
-
-
+        int gabe = 0;
     }
 }
