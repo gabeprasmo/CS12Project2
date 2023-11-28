@@ -1,7 +1,6 @@
-// might completely change and use HashMap instead
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 
@@ -14,8 +13,6 @@ class Catalog
     private String itemListFile; // itemListFile is for storing and loading the                                     list of items
     //private ShoppingCart shoppingCart; //Attribute for shopping cart
 
-
-
     public void ItemDatabase(String itemListFile)
     {
         this.itemListFile = itemListFile;
@@ -26,51 +23,62 @@ class Catalog
 
 
     // a method that loads the items from the file
-    private List<Item> loadItems()
-    {
+    private List<Item> loadItems() {
+        List<Item> loadedItems = new ArrayList<>();
 
-        List<Item> loadItems = new ArrayList<>(); // iniatializes a new                 array list. It will store items that are loaded from a file.
+        try (BufferedReader br = new BufferedReader(new FileReader(itemListFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Split the line by commas to extract individual attributes
+                String[] itemData = line.split(",");
+                if (itemData.length >= 4) { // Ensure the line has all necessary attributes
+                    String itemName = itemData[0];
+                    String itemCategory = itemData[1];
+                    int itemPrice = Integer.parseInt(itemData[2]);
+                    //int itemQuantity = Integer.parseInt(itemData[3]);
 
-        try (ObjectInputStream itemListReader = new ObjectInputStream(new             FileInputStream(itemListFile))) // intialized a new                                                                 ObjectInputStream called itemListFile                                           that reads from the file
-        {
-            // the variable, loadedItems, reads the object from                             itemListReader and stores it in the list of items
-            List<Item> loadedItems = (List<Item>) itemListReader.readObject();
-            //loadedItems = (List<Item>) itemListReader.readObject();
-        }
-        catch (FileNotFoundException e) // Ignore if the file doesn't exist yet
-        {
+                    // Create a new Item object using the extracted attributes
+                    Item newItem = new Item(itemName, itemCategory, itemPrice);
+                    //newItem.setQuantity(itemQuantity);
 
+                    loadedItems.add(newItem); // Add the new item to the list
+                } else {
+                    System.out.println("Invalid data format in the file: " + line);
+                    // You can choose to handle or log this issue as needed
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+            // Handle exceptions according to your application's needs
         }
-        catch (IOException | ClassNotFoundException e)
-        {
-            e.printStackTrace(); // Handle the exception according to needs
-        }
-        return loadItems;
+
+        return loadedItems;
     }
-
 
 
     // a method that'll save the inputted items to the list
-    private void SaveItems()
-    {
-
-        createFile("item1Stuff");
-
-        writeToFile(  "item1Stuff", items.get(0).name, true);
-
-
-
-
+    private void saveItems() {
+        createFile("ItemCatalog");
+        try (FileWriter fileWriter = new FileWriter(itemListFile)) {
+            // declare a loop that iterated over each Item object in the items list
+            for (Item item : items) {
+                // a string representation of the item's attributes separated by a delimiter
+                String itemInfo = item.name + "," + item.category + "," + " $" + item.price + "\n";
+                fileWriter.write(itemInfo);
+            }
+            System.out.println("Items saved successfully.");
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving items to the file.");
+            e.printStackTrace();
+        }
     }
-
-
 
     // a method that writes the items inputted by the user to the file
     // create an instance of Item
-    public void WriteItems(Item item)
-    {
-        items.add(item); // Reminder: items is the name of the list
-        SaveItems();
+
+    public void writeItems(Item item) {;
+        items.add(item);
+        saveItems();
     }
 
     public void removeItem(String itemName) {
@@ -85,7 +93,7 @@ class Catalog
         if (itemToRemove != null) {
             items.remove(itemToRemove);
             System.out.println("Item removed successfully.\n");
-            SaveItems(); // Update the file after removing an item
+            saveItems(); // Update the file after removing an item
         } else {
             System.out.println("Item not found in the catalog. Please try again.\n");
         }
