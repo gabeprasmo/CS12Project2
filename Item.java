@@ -9,12 +9,13 @@ public class Item
     public int quantity; //New Quanity attribute
 
     //public Item(String name, String category, int price)
-    public Item(String name, int price)
+    public Item(String itemName, String itemCategory, int itemPrice)
     {
-        this.name = name;
-        //this.category = category;
-        this.price = price;
+        this.name = itemName;
+        this.category = itemCategory;
+        this.price = itemPrice;
     }
+
 
     //getter and setter for quantity
     public int getQuantity() {
